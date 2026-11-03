@@ -92,7 +92,7 @@ async def lend_money(db, gid, me, target, amount, cfg, target_name=""):
         target,
         _t("kind_loan_in"),
         amt,
-        _t("lend_note_in", {"name": p["nickname"] or me}),
+        _t("lend_note_in", {"name": logic.name_of(p, me)}),
     )
     line = logic.pick(gd.t("extra2", "lend_ok"))
     return R(

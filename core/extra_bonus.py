@@ -87,7 +87,7 @@ async def year_bonus(db, gid, uid, nickname, cfg):
         uid,
         _t("kind_year_bonus"),
         _t(
-            "year_bonus_event", {"nickname": p["nickname"] or uid, "amount": logic.fmt_money(bonus)}
+            "year_bonus_event", {"nickname": logic.name_of(p, uid), "amount": logic.fmt_money(bonus)}
         ),
     )
     return R(

@@ -112,7 +112,7 @@ async def annual_review(db, gid, uid, nickname, cfg):
         _t(
             "ev_review",
             {
-                "nickname": p["nickname"] or uid,
+                "nickname": logic.name_of(p, uid),
                 "grade": grade,
                 "grade_name": grade_name,
                 "bonus": logic.fmt_money(bonus),

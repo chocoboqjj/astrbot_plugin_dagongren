@@ -98,7 +98,7 @@ async def my_achievements(db, gid, uid, nickname, cfg):
         tmpl="panel",
         data={
             "icon": "🎖️",
-            "title": f"{p['nickname'] or uid} {_title('title_achievements', '的职场成就')}",
+            "title": f"{logic.name_of(p, uid)} {_title('title_achievements', '的职场成就')}",
             "accent": "#ffd86f",
             "lines": rows,
             "blocks": [

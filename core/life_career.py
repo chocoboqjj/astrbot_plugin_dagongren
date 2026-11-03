@@ -38,7 +38,7 @@ async def resume(db, gid, uid, nickname, app_id: str = ""):
         tmpl="resume",
         data={
             "me": {
-                "name": p["nickname"] or logic.unknown_user(uid),
+                "name": logic.name_of(p, uid),
                 "id": uid,
                 "avatar": logic.avatar_of(uid, app_id),
             },

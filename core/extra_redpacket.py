@@ -62,7 +62,7 @@ async def send_redpacket(db, gid, uid, nickname, amount_str, count_str, cfg):
         db.create_redpacket_atomic,
         str(gid),
         str(uid),
-        p["nickname"] or uid,
+        logic.name_of(p, uid),
         float(amt),
         int(cnt),
         _t("tx_send_note", {"count": int(cnt)}),
@@ -84,7 +84,7 @@ async def send_redpacket(db, gid, uid, nickname, amount_str, count_str, cfg):
         _t("kind_send_redpacket"),
         _t(
             "event",
-            {"nickname": p["nickname"] or uid, "amount": logic.fmt_money(amt), "count": cnt},
+            {"nickname": logic.name_of(p, uid), "amount": logic.fmt_money(amt), "count": cnt},
         ),
     )
     return R(
@@ -97,7 +97,7 @@ async def send_redpacket(db, gid, uid, nickname, amount_str, count_str, cfg):
                 _t(
                     "line_packet_sent",
                     {
-                        "nickname": p["nickname"] or uid,
+                        "nickname": logic.name_of(p, uid),
                         "amount": logic.fmt_money(amt),
                     },
                 ),
@@ -119,7 +119,7 @@ async def send_redpacket(db, gid, uid, nickname, amount_str, count_str, cfg):
         text=_t(
             "text_packet_send",
             {
-                "nickname": p["nickname"] or uid,
+                "nickname": logic.name_of(p, uid),
                 "amount": logic.fmt_money(amt),
                 "count": cnt,
             },
@@ -135,7 +135,7 @@ async def claim_redpacket(db, gid, uid, nickname, cfg):
         db.claim_redpacket,
         str(gid),
         str(uid),
-        p["nickname"] or uid,
+        logic.name_of(p, uid),
         # 发包人昵称要到事务内才知道，所以传模板由存储层替换 {sender}
         _t("tx_claim_note"),
         _t("kind_claim_redpacket"),

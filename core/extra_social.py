@@ -68,7 +68,7 @@ async def social_network(db, gid, me, target, nickname, cfg, target_name=""):
             gid,
             me,
             _t("kind_social"),
-            _t("event", {"nickname": p["nickname"] or me, "target": tname, "gain": gain}),
+            _t("event", {"nickname": logic.name_of(p, me), "target": tname, "gain": gain}),
         )
         return R(
             tmpl="panel",

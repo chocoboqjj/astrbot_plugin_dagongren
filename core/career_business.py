@@ -89,7 +89,7 @@ async def create_company(db, gid, uid, nickname, comp_name, cfg):
         gid,
         uid,
         _t("kind_startup"),
-        _t("event_founded", {"name": p["nickname"] or uid, "comp_name": comp_name}),
+        _t("event_founded", {"name": logic.name_of(p, uid), "comp_name": comp_name}),
     )
     return R(
         tmpl="panel",
@@ -98,7 +98,7 @@ async def create_company(db, gid, uid, nickname, comp_name, cfg):
             "title": _title("title_founded", "🎉 创业成功 · 公司成立！"),
             "accent": "#ffd86f",
             "lines": [
-                _t("success_line1", {"name": p["nickname"] or uid, "comp_name": comp_name}),
+                _t("success_line1", {"name": logic.name_of(p, uid), "comp_name": comp_name}),
                 _t("success_line2"),
             ],
             "blocks": [

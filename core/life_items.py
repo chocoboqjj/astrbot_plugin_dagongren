@@ -160,7 +160,7 @@ async def my_bag(db, gid, uid, nickname, cfg):
         tmpl="panel",
         data={
             "icon": "🎒",
-            "title": f"{p['nickname'] or uid} {_title('title_my_bag', '的职场道具包')}",
+            "title": f"{logic.name_of(p, uid)} {_title('title_my_bag', '的职场道具包')}",
             "accent": "#ffd86f",
             "lines": rows,
             "foot": _t("foot_my_bag"),

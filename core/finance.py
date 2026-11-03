@@ -517,7 +517,7 @@ async def transfer(db, gid, me, target, amount, cfg, target_name=""):
         target,
         _t("kind_transfer_in"),
         amt,
-        _t("tx_transfer_in", {"name": p.get("card") or p.get("nickname") or me}),
+        _t("tx_transfer_in", {"name": logic.name_of(p, me)}),
     )
     return R(
         tmpl="panel",
