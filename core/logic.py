@@ -255,14 +255,19 @@ def display(p: dict) -> str:
 
 
 def name_of(p: dict, fallback: str = "") -> str:
-    """不带称号的展示名：群名片(card) > 昵称 > fallback > 用户{uid}。
+    """不带称号的展示名：自选工牌名(custom_name) > 群名片(card) > 昵称 > fallback > 用户{uid}。
 
     事件文案/流水备注里要的是"这个人叫什么"，不带段位称号。此前
     `p.get("card") or p["nickname"] or uid` 在 11 处逐字复制，其中几处还用
     `p["nickname"]` 直接下标（补录的档案没有这一列就 KeyError）。
+    custom_name 是玩家用 #改工牌 主动设的名字，优先级最高，覆盖平台群昵称。
     """
-    return p.get("card") or p.get("nickname") or str(fallback or "") or unknown_user(
-        p.get("uid", "")
+    return (
+        p.get("custom_name")
+        or p.get("card")
+        or p.get("nickname")
+        or str(fallback or "")
+        or unknown_user(p.get("uid", ""))
     )
 
 

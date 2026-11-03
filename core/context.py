@@ -63,6 +63,30 @@ class GameCtx:
         """路由兜底异常：带堆栈落日志，用户侧只看到一句友好提示。"""
         logger.error(f"[上班族物语] 指令 {where} 执行异常：{exc}", exc_info=True)
 
+
+def _at_id(comp) -> str:
+    """从 @ 组件里尽力取出被 @ 人的标识。
+
+    OneBot/CQ 用 .qq（QQ 号）；QQ 官方机器人（botpy）下没有 QQ 号，被 @ 人
+    的标识是 openid，而不同 AstrBot 版本可能把它落在 .qq / .user_id /
+    .user_openid / .member_openid / .openid / .id 任一属性上。逐一兜底，
+    避免某版本不填 .qq 时 @群友 类指令整体解析不出目标而失灵。
+    """
+    for attr in ("qq", "user_id", "user_openid", "member_openid", "openid", "id"):
+        v = getattr(comp, attr, None)
+        if v:
+            return str(v)
+    return ""
+
+
+def _at_name(comp) -> str:
+    """从 @ 组件里尽力取出被 @ 人的展示名（QQ 官方下常带 nickname/name）。"""
+    for attr in ("name", "nickname", "display", "display_name"):
+        v = getattr(comp, attr, None)
+        if v:
+            return str(v).strip()
+    return ""
+
     async def anick(self, event, uid=None):
         """异步版本：内存缓存 → 线程化 DB（昵称/群名片）→ 事件提取兜底。"""
         uid = str(uid) if uid else str(event.get_sender_id())
@@ -74,6 +98,9 @@ class GameCtx:
         name = ""
         if gid:
             p = await asyncio.to_thread(self.db.get_player_row, gid, uid)
+            # 优先玩家自选工牌名；其次平台群名片；再其次注册时落库的昵称
+            if p and p.get("custom_name"):
+                return p["custom_name"]
             if p and p.get("card"):
                 return p["card"]
             if p and p.get("nickname"):
@@ -82,9 +109,10 @@ class GameCtx:
             name = event.get_sender_name() or ""
         if not name:
             for comp in event.get_messages():
-                if isinstance(comp, Comp.At) and str(comp.qq) == uid:
-                    name = getattr(comp, "name", "") or ""
-                    if name:
+                if isinstance(comp, Comp.At) and _at_id(comp) == uid:
+                    n = _at_name(comp)
+                    if n:
+                        name = n
                         break
         return name or logic.unknown_user(uid)
 
@@ -94,9 +122,9 @@ class GameCtx:
         self_id = str(event.get_self_id())
         for comp in event.get_messages():
             if isinstance(comp, Comp.At):
-                qq = str(comp.qq)
-                if qq and qq not in ("all", self_id) and qq not in out:
-                    out.append(qq)
+                aid = _at_id(comp)
+                if aid and aid not in ("all", self_id) and aid not in out:
+                    out.append(aid)
         return out
 
     @staticmethod
@@ -216,10 +244,11 @@ class GameCtx:
     async def _collect_uids(self, event, extra_uids) -> list[str]:
         uids = [str(event.get_sender_id())]
         for comp in event.get_messages():
-            if getattr(comp, "type", "") == "At":
-                qq = str(getattr(comp, "qq", ""))
-                if qq and qq != "all" and qq != str(event.get_self_id()):
-                    uids.append(qq)
+            # 兼容两种写法：astrbot 的 Comp.At 实例，或仅带 type=="At" 的裸组件
+            if isinstance(comp, Comp.At) or getattr(comp, "type", "") == "At":
+                aid = _at_id(comp)
+                if aid and aid != "all" and aid != str(event.get_self_id()):
+                    uids.append(aid)
         uids.extend(str(uid) for uid in extra_uids or () if uid)
         return list(dict.fromkeys(uids))  # 去重且保持出现顺序
 

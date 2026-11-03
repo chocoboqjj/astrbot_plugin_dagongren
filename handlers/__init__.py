@@ -7,6 +7,7 @@
 """
 
 from . import (
+    account_cmds,
     backup_cmds,
     battle_cmds,
     career_cmds,
@@ -27,6 +28,7 @@ from .base import Route, install
 
 ALL_ROUTES: list[Route] = [
     *system_cmds.ROUTES,
+    *account_cmds.ROUTES,
     *career_cmds.ROUTES,
     *company_cmds.ROUTES,
     *battle_cmds.ROUTES,

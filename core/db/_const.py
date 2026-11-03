@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS players (
     uid TEXT NOT NULL,
     nickname TEXT DEFAULT '',
     card TEXT DEFAULT '',
+    custom_name TEXT DEFAULT '',
     cash REAL DEFAULT 0,
     deposit REAL DEFAULT 0,
     bank_level INTEGER DEFAULT 1,
@@ -290,6 +291,7 @@ COLUMNS = [
     "uid",
     "nickname",
     "card",
+    "custom_name",
     "cash",
     "deposit",
     "bank_level",
@@ -424,6 +426,7 @@ class MoneyIntegrityError(RuntimeError):
 DEFAULTS = {
     "nickname": "",
     "card": "",
+    "custom_name": "",
     "cash": 800.0,
     "deposit": 0.0,
     "bank_level": 1,

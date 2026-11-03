@@ -1,5 +1,7 @@
 """DB remap_company_ids 等功能 Mixin（由 db.py 拆分）。"""
 
+import time
+
 from ._const import CUSTOM_BASE, _escape_like, _write_lock
 
 
@@ -202,6 +204,24 @@ class _PlayersMixin:
                     "UPDATE players SET card=?, nickname=CASE WHEN nickname='' THEN ? ELSE nickname END "
                     "WHERE gid=? AND uid=?",
                     (card[:50], card[:50], str(gid), str(uid)),
+                )
+                conn.commit()
+            finally:
+                conn.close()
+
+    def set_custom_name(self, gid, uid, name: str):
+        """玩家自改工牌名（#改工牌）：写入 custom_name，展示名优先级最高。
+
+        与 set_card 不同，这里直接覆盖 custom_name（玩家主动行为），不动
+        card/nickname——平台群昵称同步与玩家自选名互不干扰。截断到 50 字以
+        匹配列定义，updated_at 随写回刷新。
+        """
+        with _write_lock:
+            conn = self._conn()
+            try:
+                conn.execute(
+                    "UPDATE players SET custom_name=?, updated_at=? WHERE gid=? AND uid=?",
+                    (name[:50], int(time.time()), str(gid), str(uid)),
                 )
                 conn.commit()
             finally:
