@@ -350,10 +350,15 @@ class _CoreMixin:
         return True
 
     async def _guard(self, request, handler):
-        if not self._host_ok(request):
-            return _json({"error": "Host 不被允许"}, 400)
-        if request.method not in ("GET", "HEAD") and not self._origin_ok(request):
-            return _json({"error": "跨站请求已被拒绝"}, 403)
+        # Host/Origin 校验（防 DNS rebinding + 跨站写保护）：默认开启，
+        # 仅在 webui_disable_host_check=true 时整体跳过——用于反代域名/端口
+        # 映射等「Host 头不是监听地址」的访问场景。跳过时失去这两道防护，
+        # 必须配合强密码与可信网络。
+        if not self._c("webui_disable_host_check", False):
+            if not self._host_ok(request):
+                return _json({"error": "Host 不被允许"}, 400)
+            if request.method not in ("GET", "HEAD") and not self._origin_ok(request):
+                return _json({"error": "跨站请求已被拒绝"}, 403)
         # 白名单之外的一切路径默认需要登录：以后新增路由不会忘记加鉴权
         if request.path not in PUBLIC_PATHS and not await self._authed(request):
             return self._unauth()

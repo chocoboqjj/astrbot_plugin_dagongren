@@ -32,6 +32,12 @@
     "min": 1,
     "max": 65535
   },
+  "webui_disable_host_check": {
+    "description": "关闭 WebUI 的 Host/Origin 校验（DNS rebinding 与跨站写保护）",
+    "hint": "默认关闭=保留校验；仅在确实需要通过反代域名或端口映射访问、且频繁遇到「Host 不被允许 / 跨站请求已被拒绝」时临时开启。开启后请务必配合强密码与可信网络，否则存在 DNS 重绑定与 CSRF 风险",
+    "type": "bool",
+    "default": false
+  },
   "cooldown_exempt_users": {
     "description": "免冷却用户 ID 列表",
     "type": "list",
@@ -339,7 +345,6 @@
     "max": 1000000000000
   },
   "webui_password": {
-    "invisible": true,
     "description": "WebUI 访问密码，**留空则启动时自动生成临时密码**（Argon2id 哈希存储，启动日志会打印）",
     "hint": "明文提交后立即哈希存储（Argon2id m=64MiB, t=3, p=4，比 OWASP 建议的 19MiB/t=2 更保守），配置表单里是掩码输入框（仅用于提交新口令，不回显存储值），留空保持原值不变。旧 PBKDF2 哈希不再识别，会触发 bootstrap 重新生成临时密码。",
     "type": "string",
