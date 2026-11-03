@@ -64,29 +64,6 @@ class GameCtx:
         logger.error(f"[上班族物语] 指令 {where} 执行异常：{exc}", exc_info=True)
 
 
-def _at_id(comp) -> str:
-    """从 @ 组件里尽力取出被 @ 人的标识。
-
-    OneBot/CQ 用 .qq（QQ 号）；QQ 官方机器人（botpy）下没有 QQ 号，被 @ 人
-    的标识是 openid，而不同 AstrBot 版本可能把它落在 .qq / .user_id /
-    .user_openid / .member_openid / .openid / .id 任一属性上。逐一兜底，
-    避免某版本不填 .qq 时 @群友 类指令整体解析不出目标而失灵。
-    """
-    for attr in ("qq", "user_id", "user_openid", "member_openid", "openid", "id"):
-        v = getattr(comp, attr, None)
-        if v:
-            return str(v)
-    return ""
-
-
-def _at_name(comp) -> str:
-    """从 @ 组件里尽力取出被 @ 人的展示名（QQ 官方下常带 nickname/name）。"""
-    for attr in ("name", "nickname", "display", "display_name"):
-        v = getattr(comp, attr, None)
-        if v:
-            return str(v).strip()
-    return ""
-
     async def anick(self, event, uid=None):
         """异步版本：内存缓存 → 线程化 DB（昵称/群名片）→ 事件提取兜底。"""
         uid = str(uid) if uid else str(event.get_sender_id())
@@ -398,3 +375,27 @@ def _at_name(comp) -> str:
             await asyncio.to_thread(self.db.set_card, gid, uid, card)
         else:
             self._cache_set(key, now + self.card_ttl / 2, "", now)
+
+
+def _at_id(comp) -> str:
+    """从 @ 组件里尽力取出被 @ 人的标识。
+
+    OneBot/CQ 用 .qq（QQ 号）；QQ 官方机器人（botpy）下没有 QQ 号，被 @ 人
+    的标识是 openid，而不同 AstrBot 版本可能把它落在 .qq / .user_id /
+    .user_openid / .member_openid / .openid / .id 任一属性上。逐一兜底，
+    避免某版本不填 .qq 时 @群友 类指令整体解析不出目标而失灵。
+    """
+    for attr in ("qq", "user_id", "user_openid", "member_openid", "openid", "id"):
+        v = getattr(comp, attr, None)
+        if v:
+            return str(v)
+    return ""
+
+
+def _at_name(comp) -> str:
+    """从 @ 组件里尽力取出被 @ 人的展示名（QQ 官方下常带 nickname/name）。"""
+    for attr in ("name", "nickname", "display", "display_name"):
+        v = getattr(comp, attr, None)
+        if v:
+            return str(v).strip()
+    return ""
