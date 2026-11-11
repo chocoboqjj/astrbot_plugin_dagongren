@@ -242,8 +242,17 @@ def house(i: int) -> dict:
     hs = load_all().get("_houses", [])
     if not hs:
         return _fallback_house()
-    i = max(0, min(len(hs) - 1, int(i)))
-    return dict(hs[i])
+    i = int(i)
+    # 按 i 字段精确匹配，而不是把入参当列表下标。buy_house 写入的是
+    # owned_house_index() 返回的「i 字段值」，move_house 写入的也是 targets 的 i；
+    # 此前 house() 用 hs[i] 当下标，只有 houses.json 的 i 从 0 连续递增时才等价。
+    # 一旦 houses.json 被编辑（i 不连续/顺序打乱），下标语义就会错位，轻则指向
+    # 错误档位，重则越界钳到 0=桥洞，出现「买了房简历还是桥洞」的假象。
+    for h in hs:
+        if int(h.get("i", -1)) == i:
+            return dict(h)
+    # 越界/脏数据：钳到首尾档，绝不静默回退到桥洞误导用户以为没买房
+    return dict(hs[0] if i < 0 else hs[-1])
 
 
 def owned_house_index() -> int:
