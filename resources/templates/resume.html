@@ -80,7 +80,7 @@ body { font-family:"Microsoft YaHei","PingFang SC",sans-serif;
       <div class="kv">{{ t.resume_asset_cash }}<b>{{ cash or 0 }} {{ t.yuan }}</b></div>
       <div class="kv">{{ t.resume_asset_deposit }}<b>{{ deposit or 0 }} {{ t.yuan }}</b></div>
       <div class="kv">{{ t.resume_asset_fund }}<b>{{ fund or 0 }} {{ t.yuan }}</b></div>
-      <div class="kv">{{ t.resume_asset_house }}<b>{{ t.fallback_house_name }}</b></div>
+      <div class="kv">{{ t.resume_asset_house }}<b>{{ house.name if house and house.name is defined else t.fallback_house_name }}</b></div>
       <div class="kv">{{ t.resume_asset_rent }}<b>{{ house.rent if house and house.rent is defined else 0 }} {{ t.yuan }}</b></div>
       <div class="kv">{{ t.resume_asset_value }}<b>{{ value or 0 }} {{ t.yuan }}</b></div>
     </div>
